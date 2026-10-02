@@ -17,8 +17,8 @@ class HrEmployee(models.Model):
 
     @api.constrains("parent_id")
     def _check_parent_id(self):
-        if not self._check_recursion():
-            raise ValidationError(_("You cannot assign manager recursively."))
+        if not self._has_cycle():
+            raise ValidationError(self.env._("You cannot assign manager recursively."))
 
     def _get_employee_domain(self, parent_id):
         company = self.env.company
