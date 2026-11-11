@@ -1,109 +1,276 @@
-.custom_control_panel .o_control_panel {
-    position: fixed;
-    width: 100%;
-    z-index: 1;
-}
+// Organizational chart overview.
+//
+// The stylesheet of the chart library is loaded on demand, hence after this
+// file: every rule overriding it is nested under the class of the action to win
+// on specificity. Colors come from Odoo/Bootstrap variables only, so the chart
+// follows the color scheme the assets are compiled for.
 
-.image img {
-    max-height: 120px;
-    max-width: 120px;
-    border-radius: 50%;
-}
+$o-org-chart-node-width: 176px !default;
+$o-org-chart-avatar-size: 56px !default;
+// Room for a name on one line and a job position on two: the cards of a level
+// then share the same height, which keeps the next level aligned.
+$o-org-chart-node-min-height: 156px !default;
+$o-org-chart-line-color: $o-gray-400 !default;
+$o-org-chart-level-colors: (
+    0: $o-brand-primary,
+    1: $info,
+    2: $success,
+    3: $warning,
+    4: $danger,
+) !default;
+// The library waits for the end of the transform/opacity transition of a node
+// to finish collapsing or expanding a branch: both must stay in every state.
+$o-org-chart-node-transition:
+    transform 0.3s,
+    opacity 0.3s,
+    box-shadow 0.2s,
+    border-color 0.2s;
 
-.orgchart {
-    margin-top: 50px;
-    background: #f9f9f9 !important;
-
-    .node .title {
-        font-size: 1rem;
-        min-width: 200px;
+.o_hr_org_chart_overview {
+    .o_content {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background-color: $o-webclient-background-color;
     }
-    .node .content {
-        font-size: 1rem;
+
+    .o_org_chart_banner {
+        flex: 0 0 auto;
     }
-}
 
-.o-filter-button {
-    margin-right: 10px;
-}
+    .o_org_chart_no_match {
+        flex: 0 0 auto;
+        padding: map-get($spacers, 5) map-get($spacers, 3);
+        color: $o-main-color-muted;
+    }
 
-.orgchart td.left,
-.orgchart td.right,
-.orgchart td.top {
-    border-color: #aaa !important;
-}
+    // Scrollable area filling what is left of the action
+    .o_org_chart_container {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+        background-color: $o-webclient-background-color;
+        text-align: center;
 
-.orgchart td > .down {
-    background-color: #aaa !important;
-}
+        &.o_org_chart_pan {
+            cursor: grab;
+        }
 
-.orgchart .level-0 .title {
-    background-color: #006699 !important;
-}
+        &.o_org_chart_grabbing {
+            cursor: grabbing;
+        }
+    }
 
-.orgchart .level-0 .content {
-    border-color: #006699 !important;
-}
+    .orgchart {
+        min-width: 0;
+        min-height: 0;
+        padding: map-get($spacers, 4);
+        border: 0;
+        background: none;
 
-.orgchart .level-0 .image img {
-    border: solid 1px #006699;
-}
+        > table {
+            zoom: var(--o-org-chart-zoom, 1);
+        }
 
-.orgchart .level-1 .title {
-    background-color: #009933 !important;
-}
+        > table:first-child {
+            margin: 0 auto;
+        }
 
-.orgchart .level-1 .content {
-    border-color: #009933 !important;
-}
+        // Connectors
+        .lines {
+            .downLine {
+                background-color: $o-org-chart-line-color;
+            }
 
-.orgchart .level-1 .image img {
-    border: solid 1px #009933;
-}
+            .topLine {
+                border-top-color: $o-org-chart-line-color;
+            }
 
-.orgchart .level-2 .title {
-    background-color: #993366 !important;
-}
+            .rightLine {
+                border-right-color: $o-org-chart-line-color;
+            }
 
-.orgchart .level-2 .content {
-    border-color: #993366 !important;
-}
+            .leftLine {
+                border-left-color: $o-org-chart-line-color;
+            }
+        }
 
-.orgchart .level-2 .image img {
-    border: solid 1px #993366;
-}
+        // Cards
+        .node {
+            --o-org-chart-accent: #{$o-gray-500};
+            --o-org-chart-accent-soft: #{rgba($o-gray-500, 0.2)};
 
-.orgchart .level-3 .title {
-    background-color: #996633 !important;
-}
+            width: $o-org-chart-node-width;
+            min-height: $o-org-chart-node-min-height;
+            margin: 0 map-get($spacers, 2);
+            padding: map-get($spacers, 3) map-get($spacers, 2) + map-get($spacers, 1);
+            border: $border-width solid $border-color;
+            border-top: 3px solid var(--o-org-chart-accent);
+            border-radius: $border-radius-lg;
+            background-color: $o-view-background-color;
+            box-shadow: $box-shadow-sm;
+            color: $o-main-text-color;
+            transition: $o-org-chart-node-transition;
 
-.orgchart .level-3 .content {
-    border-color: #996633 !important;
-}
+            &:hover,
+            &.focused {
+                background-color: $o-view-background-color;
+                transition: $o-org-chart-node-transition;
+            }
 
-.orgchart .level-3 .image img {
-    border: solid 1px #996633;
-}
+            &.o_org_chart_employee {
+                cursor: pointer;
 
-.orgchart .level-4 .title {
-    background-color: #cc0066 !important;
-}
+                &:hover,
+                &:focus-visible {
+                    border-right-color: var(--o-org-chart-accent);
+                    border-bottom-color: var(--o-org-chart-accent);
+                    border-left-color: var(--o-org-chart-accent);
+                    box-shadow: $box-shadow;
+                }
 
-.orgchart .level-4 .content {
-    border-color: #cc0066 !important;
-}
+                &:focus-visible {
+                    outline: 2px solid var(--o-org-chart-accent);
+                    outline-offset: 2px;
+                }
+            }
 
-.orgchart .level-4 .image img {
-    border: solid 1px #cc0066;
-}
+            // Search: the employees found stand out, their managers step back
+            &.matched {
+                background-color: mix(
+                    $o-brand-primary,
+                    $o-view-background-color,
+                    8%
+                );
+                border-color: $o-brand-primary;
+                box-shadow:
+                    0 0 0 2px $o-brand-primary,
+                    $box-shadow-sm;
+            }
 
-/* Hide the very first 3 rows (that represent the pseudo root element) */
-.orgchart > table > tr:nth-child(-n + 3) {
-    display: none;
-}
+            &.retained {
+                opacity: 0.65;
+            }
 
-/* in the .node class of the root, search for the first children of root and
-    hide their topEdge arrow which is associated to the pseudo root elemen */
-.orgchart > table > tr.nodes > td > table > tbody > tr > td > div.node > i.topEdge {
-    display: none;
+            // Only the handle collapsing or expanding the subordinates is
+            // offered, as a round button astride the bottom of the card.
+            .edge {
+                display: none;
+            }
+        }
+
+        @each $level, $color in $o-org-chart-level-colors {
+            .node.level-#{$level} {
+                --o-org-chart-accent: #{$color};
+                --o-org-chart-accent-soft: #{rgba($color, 0.2)};
+            }
+        }
+
+        .node.o_org_company {
+            --o-org-chart-accent: #{$o-gray-700};
+            --o-org-chart-accent-soft: #{rgba($o-gray-700, 0.2)};
+
+            min-height: 0;
+
+            // Logos are usually wider than tall
+            .o_org_chart_avatar {
+                width: 100%;
+                border-radius: $border-radius;
+                background-color: transparent;
+                background-size: contain;
+                box-shadow: none;
+            }
+
+            .o_org_chart_name {
+                font-size: $font-size-base;
+                font-weight: $font-weight-bold;
+            }
+        }
+
+        .o_org_chart_avatar {
+            display: block;
+            width: $o-org-chart-avatar-size;
+            height: $o-org-chart-avatar-size;
+            margin: 0 auto map-get($spacers, 2);
+            border-radius: 50%;
+            background: $o-gray-200 center / cover no-repeat;
+            box-shadow: 0 0 0 3px var(--o-org-chart-accent-soft);
+        }
+
+        .o_org_chart_name {
+            font-weight: $font-weight-medium;
+            line-height: $line-height-sm;
+            overflow-wrap: anywhere;
+        }
+
+        .o_org_chart_job {
+            margin-top: map-get($spacers, 1);
+            color: $o-main-color-muted;
+            font-size: $font-size-sm;
+            line-height: $line-height-sm;
+            overflow-wrap: anywhere;
+        }
+
+        &:not(.noncollapsable) .node .bottomEdge {
+            display: block;
+            bottom: -11px;
+            left: calc(50% - 10px);
+            width: 20px;
+            height: 20px;
+            border: $border-width solid $border-color;
+            border-radius: 50%;
+            background-color: $o-view-background-color;
+            box-shadow: $box-shadow-sm;
+            opacity: 0;
+
+            &::before {
+                content: "";
+                display: block;
+                box-sizing: border-box;
+                position: absolute;
+                top: 7px;
+                bottom: auto;
+                left: 5px;
+                width: 8px;
+                height: 8px;
+                border: solid $o-gray-600;
+                border-width: 2px 0 0 2px;
+                background: none;
+                transform: rotate(45deg);
+            }
+
+            &:hover {
+                border-color: var(--o-org-chart-accent);
+            }
+        }
+
+        // The library flags the handle while the card is hovered
+        &:not(.noncollapsable) .node .bottomEdge.oci-chevron-up,
+        &:not(.noncollapsable) .node .bottomEdge.oci-chevron-down {
+            opacity: 1;
+        }
+
+        // A collapsed branch keeps its handle visible, pointing down
+        &:not(.noncollapsable) tr:has(~ .nodes.hidden) > td > .node > .bottomEdge,
+        &:not(.noncollapsable) .node .bottomEdge.oci-chevron-down {
+            opacity: 1;
+
+            &::before {
+                top: 4px;
+                transform: rotate(225deg);
+            }
+        }
+
+        // The library rendering the exported image draws shadows wrongly
+        // (inside the cards that are far from the top of the page): the
+        // export is flat, cards keep their border. No transition, or the
+        // capture would be made before the shadows are gone.
+        &.o_org_chart_exporting {
+            .node,
+            .o_org_chart_avatar {
+                box-shadow: none;
+                transition: none;
+            }
+        }
+    }
 }

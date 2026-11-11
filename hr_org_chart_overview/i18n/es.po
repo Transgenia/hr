@@ -1,0 +1,175 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* hr_org_chart_overview
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0-20260723\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-11 22:50+0000\n"
+"PO-Revision-Date: 2026-11-11 22:50+0000\n"
+"Last-Translator: Transgenia <https://transgenia.org>\n"
+"Language-Team: none\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+msgid ""
+"%s employees have no manager and no subordinates, so they are not shown."
+msgstr "%s empleados no tienen gerente ni subordinados, por lo que no se muestran."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+msgid "1 employee has no manager and no subordinates, so they are not shown."
+msgstr "1 empleado no tiene gerente ni subordinados, por lo que no se muestra."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Chart tools"
+msgstr "Herramientas del organigrama"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Clear search"
+msgstr "Limpiar búsqueda"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+msgid "Collapse or expand"
+msgstr "Contraer o expandir"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: hr_org_chart_overview
+#: model:ir.model,name:hr_org_chart_overview.model_hr_employee
+msgid "Employee"
+msgstr "Empleado"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+msgid "Employees without manager or subordinates"
+msgstr "Empleados sin gerente ni subordinados"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Export PDF"
+msgstr "Exportar PDF"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Export PNG"
+msgstr "Exportar PNG"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Fit to screen"
+msgstr "Ajustar a la pantalla"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+msgid "No employee or job position matches \"%s\"."
+msgstr "Ningún empleado o puesto de trabajo coincide con \"%s\"."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "No reporting line to draw yet"
+msgstr "Aún no hay líneas de reporte que dibujar"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+#: model:ir.actions.client,name:hr_org_chart_overview.action_org_chart_overview
+#: model:ir.ui.menu,name:hr_org_chart_overview.menu_org_chart_overview_report
+msgid "Organizational Chart"
+msgstr "Organigrama"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Pan"
+msgstr "Desplazar"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Pan: drag the background to move around"
+msgstr "Desplazar: arrastra el fondo para moverte"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Reset zoom"
+msgstr "Restablecer zoom"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Search an employee or a job position"
+msgstr "Buscar un empleado o un puesto de trabajo"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Search an employee or a job position..."
+msgstr "Buscar un empleado o un puesto de trabajo..."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid ""
+"Set a manager on your employees and the chart of your organization will show"
+" up here."
+msgstr "Asigna un gerente a tus empleados y el organigrama de tu organización aparecerá aquí."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
+msgid "The chart could not be exported."
+msgstr "No se pudo exportar el organigrama."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "View these employees"
+msgstr "Ver estos empleados"
+
+#. module: hr_org_chart_overview
+#. odoo-python
+#: code:addons/hr_org_chart_overview/models/hr_employee.py:0
+msgid "You cannot assign manager recursively."
+msgstr "No puedes asignar un gerente de forma recursiva."
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Zoom in"
+msgstr "Acercar"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Zoom out"
+msgstr "Alejar"

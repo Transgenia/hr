@@ -1,33 +1,166 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<templates>
-    <t t-name="ControlPanel">
-        <div class="o_control_panel">
-            <div>
-                <div class="o_cp_top_left">
-                    <ol class="breadcrumb" role="navigation" />
+<templates xml:space="preserve">
+    <t t-name="hr_org_chart_overview.HrOrgChartOverview">
+        <div class="o_action o_action_delegate_scroll o_hr_org_chart_overview">
+            <Layout display="{controlPanel: {}}">
+                <t t-set-slot="control-panel-always-buttons">
+                    <button
+                        type="button"
+                        class="btn btn-primary o_org_chart_export_pdf"
+                        t-att-disabled="isEmpty"
+                        t-on-click="() => this.exportChart('pdf')"
+                    >Export PDF</button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary o_org_chart_export_png"
+                        t-att-disabled="isEmpty"
+                        t-on-click="() => this.exportChart('png')"
+                    >Export PNG</button>
+                </t>
+                <t t-set-slot="layout-actions">
+                    <div class="o_cp_searchview d-flex input-group" role="search">
+                        <div
+                            class="o_searchview form-control d-flex align-items-center py-1"
+                        >
+                            <i
+                                class="o_searchview_icon oi oi-search me-2"
+                                role="img"
+                                aria-hidden="true"
+                            />
+                            <div
+                                class="o_searchview_input_container d-flex flex-grow-1 mw-100"
+                            >
+                                <input
+                                    type="text"
+                                    class="o_searchview_input o_input flex-grow-1 w-auto border-0"
+                                    role="searchbox"
+                                    placeholder="Search an employee or a job position..."
+                                    aria-label="Search an employee or a job position"
+                                    t-att-value="state.search"
+                                    t-att-disabled="isEmpty"
+                                    t-on-input="onSearchInput"
+                                    t-on-keydown="onSearchKeydown"
+                                />
+                            </div>
+                            <button
+                                t-if="state.search"
+                                type="button"
+                                class="o_org_chart_search_clear btn border-0 p-0 ms-2"
+                                title="Clear search"
+                                aria-label="Clear search"
+                                t-on-click="clearSearch"
+                            >
+                                <i class="oi oi-close" role="img" aria-hidden="true" />
+                            </button>
+                        </div>
+                    </div>
+                </t>
+                <t t-set-slot="control-panel-navigation-additional">
+                    <div
+                        class="o_org_chart_tools btn-group d-print-none"
+                        role="toolbar"
+                        aria-label="Chart tools"
+                    >
+                        <button
+                            type="button"
+                            class="btn btn-secondary o_org_chart_zoom_out"
+                            title="Zoom out"
+                            aria-label="Zoom out"
+                            t-att-disabled="!canZoomOut"
+                            t-on-click="onZoomOut"
+                        >
+                            <i class="fa fa-search-minus" role="img" aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary o_org_chart_zoom_level"
+                            title="Reset zoom"
+                            t-att-disabled="isEmpty"
+                            t-on-click="onResetZoom"
+                            t-esc="zoomLabel"
+                        />
+                        <button
+                            type="button"
+                            class="btn btn-secondary o_org_chart_zoom_in"
+                            title="Zoom in"
+                            aria-label="Zoom in"
+                            t-att-disabled="!canZoomIn"
+                            t-on-click="onZoomIn"
+                        >
+                            <i class="fa fa-search-plus" role="img" aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary o_org_chart_fit"
+                            title="Fit to screen"
+                            aria-label="Fit to screen"
+                            t-att-disabled="isEmpty"
+                            t-on-click="onFit"
+                        >
+                            <i class="fa fa-expand" role="img" aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary o_org_chart_pan_toggle"
+                            t-att-class="{active: state.pan}"
+                            title="Pan: drag the background to move around"
+                            aria-label="Pan"
+                            t-att-aria-pressed="state.pan ? 'true' : 'false'"
+                            t-att-disabled="isEmpty"
+                            t-on-click="onTogglePan"
+                        >
+                            <i class="fa fa-arrows" role="img" aria-hidden="true" />
+                        </button>
+                    </div>
+                </t>
+                <div
+                    t-if="unassignedCount"
+                    class="o_org_chart_banner alert alert-info d-flex flex-wrap align-items-center gap-2 mb-0 px-3 py-2 border-0 rounded-0"
+                    role="status"
+                >
+                    <i class="fa fa-info-circle" role="img" aria-hidden="true" />
+                    <span t-esc="unassignedMessage" />
+                    <button
+                        type="button"
+                        class="o_org_chart_unassigned btn btn-link alert-link p-0"
+                        t-on-click="openUnassigned"
+                    >View these employees</button>
                 </div>
-                <div class="o_cp_top_right">
-                    <div class="o_cp_searchview" role="search">
-                        <t t-if="widget.withSearchBar" t-call="SearchView" />
+                <div t-if="isEmpty" class="o_view_nocontent">
+                    <div class="o_nocontent_help">
+                        <p
+                            class="o_view_nocontent_smiling_face"
+                        >No reporting line to draw yet</p>
+                        <p
+                        >Set a manager on your employees and the chart of your organization will show up here.</p>
                     </div>
                 </div>
-            </div>
-            <div>
-                <div class="o_cp_left">
+                <t t-else="">
                     <div
-                        class="o_cp_buttons"
-                        role="toolbar"
-                        aria-label="Control panel toolbar"
+                        t-if="state.noMatch"
+                        class="o_org_chart_no_match d-flex flex-column align-items-center gap-2"
+                        role="status"
+                    >
+                        <span t-esc="noMatchMessage" />
+                        <button
+                            type="button"
+                            class="btn btn-link p-0"
+                            t-on-click="clearSearch"
+                        >Clear search</button>
+                    </div>
+                    <div
+                        class="o_org_chart_container"
+                        t-att-class="{'d-none': state.noMatch, o_org_chart_pan: state.pan}"
+                        t-ref="container"
+                        t-on-click="onChartClick"
+                        t-on-keydown="onChartKeydown"
+                        t-on-pointerdown="onPointerDown"
+                        t-on-pointermove="onPointerMove"
+                        t-on-pointerup="onPointerUp"
+                        t-on-pointercancel="onPointerUp"
                     />
-                    <aside class="o_cp_sidebar" />
-                </div>
-            </div>
+                </t>
+            </Layout>
         </div>
-    </t>
-    <t t-name="HrOrgChartOverview">
-        <div class="custom_control_panel">
-            <t t-call="ControlPanel" />
-        </div>
-        <div id="chart-container" />
     </t>
 </templates>

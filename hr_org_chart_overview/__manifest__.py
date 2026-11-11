@@ -3,7 +3,7 @@
 
 {
     "name": "HR Org Chart Overview",
-    "version": "18.0.1.0.0",
+    "version": "19.0.1.0.0",
     "category": "Human Resources",
     "website": "https://github.com/OCA/hr",
     "author": "ForgeFlow S.L., Odoo Community Association (OCA)",
@@ -15,13 +15,23 @@
     "data": ["views/hr_views.xml"],
     "assets": {
         "web.assets_backend": [
-            "hr_org_chart_overview/static/src/js/hr_org_chart_overview.js",
-            "hr_org_chart_overview/static/src/lib/orgchart/html2canvas.min.js",
-            "hr_org_chart_overview/static/src/lib/orgchart/jspdf.min.js",
-            "hr_org_chart_overview/static/src/lib/orgchart/jquery.orgchart.js",
-            "hr_org_chart_overview/static/src/lib/orgchart/jquery.orgchart.css",
+            "hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js",
             "hr_org_chart_overview/static/src/scss/hr_org_chart_style.scss",
-            "hr_org_chart_overview/static/src/xml/**/*",
+            "hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml",
+        ],
+        # Loaded on demand by the client action, once jQuery is there (it is
+        # not part of the backend assets anymore)
+        "hr_org_chart_overview.assets_orgchart": [
+            "hr_org_chart_overview/static/lib/orgchart/jquery.orgchart.js",
+            "hr_org_chart_overview/static/lib/orgchart/jquery.orgchart.css",
+        ],
+        # Loaded on demand the first time the chart is exported
+        "hr_org_chart_overview.assets_orgchart_export": [
+            "hr_org_chart_overview/static/lib/orgchart/html2canvas.min.js",
+            "hr_org_chart_overview/static/lib/orgchart/jspdf.min.js",
+        ],
+        "web.assets_tests": [
+            "hr_org_chart_overview/static/tests/tours/**/*",
         ],
     },
 }

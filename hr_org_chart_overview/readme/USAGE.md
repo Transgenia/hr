@@ -5,5 +5,5 @@ appear when the mouse is over a node (employee). Furthermore, clicking
 on an employee will redirect the user to the form view of that employee.
 
 Using the search bar, the user can filter the chart by entering the
-employee name or department. To clear the filter, delete all introduced
+employee name or job title. To clear the filter, delete all introduced
 characters.

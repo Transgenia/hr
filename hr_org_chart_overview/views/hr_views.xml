@@ -9,6 +9,7 @@
         parent="hr.hr_menu_hr_reports"
         id="menu_org_chart_overview_report"
         action="action_org_chart_overview"
+        groups="hr.group_hr_user"
         sequence="1"
     />
 </odoo>
