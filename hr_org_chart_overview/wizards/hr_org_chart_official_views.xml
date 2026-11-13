@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html). -->
+<odoo>
+    <record id="hr_org_chart_official_view_form" model="ir.ui.view">
+        <field name="name">hr.org.chart.official.form</field>
+        <field name="model">hr.org.chart.official</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="title" />
+                        <field
+                            name="company_id"
+                            options="{'no_create': True, 'no_open': True}"
+                            groups="base.group_multi_company"
+                        />
+                        <field name="date_issue" />
+                        <field name="date_valid" />
+                    </group>
+                    <group>
+                        <field name="signer_name" />
+                        <field name="signer_title" />
+                        <field name="show_reporting_lines" />
+                    </group>
+                </group>
+                <footer>
+                    <button
+                        name="action_print"
+                        type="object"
+                        string="Print PDF"
+                        class="btn-primary"
+                        data-hotkey="q"
+                    />
+                    <button special="cancel" string="Cancel" data-hotkey="x" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_official_org_chart" model="ir.actions.act_window">
+        <field name="name">Official Organizational Chart</field>
+        <field name="res_model">hr.org.chart.official</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="group_ids" eval="[Command.link(ref('hr.group_hr_user'))]" />
+    </record>
+
+    <menuitem
+        id="menu_official_org_chart"
+        parent="hr.hr_menu_hr_reports"
+        action="action_official_org_chart"
+        groups="hr.group_hr_user"
+        sequence="2"
+    />
+</odoo>

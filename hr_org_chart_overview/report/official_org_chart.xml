@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html). -->
+<odoo>
+    <record id="action_report_official_org_chart" model="ir.actions.report">
+        <field name="name">Official Organizational Chart</field>
+        <field name="model">hr.org.chart.official</field>
+        <field name="report_type">qweb-pdf</field>
+        <field
+            name="report_name"
+        >hr_org_chart_overview.report_official_org_chart</field>
+        <field
+            name="report_file"
+        >hr_org_chart_overview.report_official_org_chart</field>
+        <field
+            name="print_report_name"
+        >'%s - %s' % (object.title, object.date_issue)</field>
+        <field name="group_ids" eval="[Command.link(ref('hr.group_hr_user'))]" />
+    </record>
+
+    <template id="report_official_org_chart_document">
+        <t t-set="company" t-value="doc.company_id" />
+        <t t-set="chart" t-value="doc._get_official_chart_data()" />
+        <t t-call="web.external_layout">
+            <div class="page o_org_chart_official">
+                <h3 class="text-center mb-3" t-out="doc.title" />
+                <table class="table table-sm table-borderless mb-4 w-auto">
+                    <tr>
+                        <th class="pe-4">Legal name</th>
+                        <td t-out="company.partner_id.name or company.name" />
+                    </tr>
+                    <tr t-if="company.vat">
+                        <th
+                            class="pe-4"
+                            t-out="company.country_id.vat_label or 'Tax ID'"
+                        />
+                        <td t-out="company.vat" />
+                    </tr>
+                    <tr>
+                        <th class="pe-4">Issue date</th>
+                        <td t-out="doc.date_issue" t-options="{'widget': 'date'}" />
+                    </tr>
+                    <tr>
+                        <th class="pe-4">Valid until</th>
+                        <td t-out="doc.date_valid" t-options="{'widget': 'date'}" />
+                    </tr>
+                    <tr>
+                        <th class="pe-4">Headcount</th>
+                        <td t-out="chart['total']" />
+                    </tr>
+                </table>
+
+                <h5>Structure by department</h5>
+                <table
+                    t-foreach="chart['departments']"
+                    t-as="department"
+                    class="table table-sm mb-3 o_org_chart_official_department"
+                    style="page-break-inside: avoid;"
+                >
+                    <thead>
+                        <tr class="table-light">
+                            <th t-out="department['name']" />
+                            <th class="text-end text-nowrap">
+                                Headcount: <span t-out="department['count']" />
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="department['jobs']" t-as="job">
+                            <td class="w-50" t-out="job['name']" />
+                            <td>
+                                <t t-foreach="job['employees']" t-as="person">
+                                    <span t-out="person['name']" /><sup
+                                        t-if="person['external']"
+                                    >*</sup><t t-if="not person_last">, </t>
+                                </t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <t t-if="doc.show_reporting_lines and chart['lines']">
+                    <h5 class="mt-4">Reporting lines</h5>
+                    <table class="table table-sm o_org_chart_official_lines">
+                        <tr t-foreach="chart['lines']" t-as="line">
+                            <td
+                                t-attf-style="padding-left: #{8 + 18 * line['depth']}px;"
+                            >
+                                <span t-if="line['depth']">└ </span>
+                                <strong t-out="line['name']" /><sup
+                                    t-if="line['external']"
+                                >*</sup>
+                                <span class="text-muted"> · </span>
+                                <span t-out="line['job']" />
+                            </td>
+                        </tr>
+                    </table>
+                </t>
+
+                <p t-if="chart['external_count']" class="small mt-2">
+                    * Contractor or freelancer: works for the company without
+                    being one of its employees.
+                </p>
+
+                <div
+                    class="row mt-5 o_org_chart_official_signature"
+                    style="page-break-inside: avoid;"
+                >
+                    <div class="col-6 offset-3 text-center">
+                        <div style="border-top: 1px solid #000; margin-top: 64px;" />
+                        <strong t-out="doc.signer_name" />
+                        <div t-if="doc.signer_title" t-out="doc.signer_title" />
+                        <div t-out="company.partner_id.name or company.name" />
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_official_org_chart">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t
+                    t-call="hr_org_chart_overview.report_official_org_chart_document"
+                    t-lang="doc.env.lang"
+                />
+            </t>
+        </t>
+    </template>
+</odoo>

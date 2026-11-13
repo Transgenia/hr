@@ -3,7 +3,7 @@
 
 {
     "name": "HR Org Chart Overview",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Human Resources",
     "website": "https://github.com/OCA/hr",
     "author": "ForgeFlow S.L., Odoo Community Association (OCA)",
@@ -12,7 +12,12 @@
     "application": False,
     "summary": "Organizational Chart Overview",
     "depends": ["hr"],
-    "data": ["views/hr_views.xml"],
+    "data": [
+        "security/ir.model.access.csv",
+        "views/hr_views.xml",
+        "wizards/hr_org_chart_official_views.xml",
+        "report/official_org_chart.xml",
+    ],
     "assets": {
         "web.assets_backend": [
             "hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js",

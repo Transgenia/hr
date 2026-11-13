@@ -140,10 +140,15 @@ export class HrOrgChartOverview extends Component {
         this.searchKeys = new WeakMap();
 
         onWillStart(async () => {
-            const [data] = await Promise.all([
-                this.orm.call("hr.employee", "get_organization_data", []),
+            const [data, isHrUser] = await Promise.all([
+                this.orm.call("hr.employee.public", "get_organization_data", []),
+                user.hasGroup("hr.group_hr_user"),
                 loadChartLibraries(),
             ]);
+            this.isHrUser = isHrUser;
+            // HR officers open the full employee records, everybody else the
+            // public ones, which they are allowed to read
+            this.employeeModel = isHrUser ? "hr.employee" : "hr.employee.public";
             this.root = prepareCompanyNode(data);
             this.unassigned = prepareUnassigned(data);
         });
@@ -244,7 +249,7 @@ export class HrOrgChartOverview extends Component {
 
     getAvatarUrl(node) {
         if (node.employeeId) {
-            return imageUrl("hr.employee", node.employeeId, "avatar_128");
+            return imageUrl("hr.employee.public", node.employeeId, "avatar_128");
         }
         return imageUrl("res.company", user.activeCompany.id, "logo");
     }
@@ -277,10 +282,14 @@ export class HrOrgChartOverview extends Component {
         if (!employeeId) {
             return;
         }
-        const action = await this.orm.call("hr.employee", "get_formview_action", [
+        const action = await this.orm.call(this.employeeModel, "get_formview_action", [
             [employeeId],
         ]);
         await this.action.doAction(action);
+    }
+
+    openOfficialChart() {
+        return this.action.doAction("hr_org_chart_overview.action_official_org_chart");
     }
 
     onChartClick(ev) {
@@ -303,7 +312,7 @@ export class HrOrgChartOverview extends Component {
         return this.action.doAction({
             type: "ir.actions.act_window",
             name: _t("Employees without manager or subordinates"),
-            res_model: "hr.employee",
+            res_model: this.employeeModel,
             views: [
                 [false, "list"],
                 [false, "kanban"],

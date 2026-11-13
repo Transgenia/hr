@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0-20260723\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 22:50+0000\n"
-"PO-Revision-Date: 2026-11-11 22:50+0000\n"
+"POT-Creation-Date: 2026-11-13 02:16+0000\n"
+"PO-Revision-Date: 2026-11-13 02:16+0000\n"
 "Last-Translator: Transgenia <https://transgenia.org>\n"
 "Language-Team: none\n"
 "Language: es\n"
@@ -24,10 +24,37 @@ msgid ""
 msgstr "%s empleados no tienen gerente ni subordinados, por lo que no se muestran."
 
 #. module: hr_org_chart_overview
+#: model:ir.actions.report,print_report_name:hr_org_chart_overview.action_report_official_org_chart
+msgid "'%s - %s' % (object.title, object.date_issue)"
+msgstr ""
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid ""
+"* Contractor or freelancer: works for the company without\n"
+"                    being one of its employees."
+msgstr "* Contratista o profesional independiente: trabaja para la empresa sin formar parte de su plantilla."
+
+#. module: hr_org_chart_overview
 #. odoo-javascript
 #: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
 msgid "1 employee has no manager and no subordinates, so they are not shown."
 msgstr "1 empleado no tiene gerente ni subordinados, por lo que no se muestra."
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "<span class=\"text-muted\"> · </span>"
+msgstr "<span class=\"text-muted\"> · </span>"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,help:hr_org_chart_overview.field_hr_org_chart_official__show_reporting_lines
+msgid "Add the tree of who reports to whom after the structure by department."
+msgstr "Agrega el árbol de quién reporta a quién después de la estructura por departamento."
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.hr_org_chart_official_view_form
+msgid "Cancel"
+msgstr "Cancelar"
 
 #. module: hr_org_chart_overview
 #. odoo-javascript
@@ -48,7 +75,30 @@ msgid "Collapse or expand"
 msgstr "Contraer o expandir"
 
 #. module: hr_org_chart_overview
+#: model:ir.model,name:hr_org_chart_overview.model_res_company
+msgid "Companies"
+msgstr "Compañías"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: hr_org_chart_overview
 #: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee_public__display_name
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__display_name
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_res_company__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -82,9 +132,53 @@ msgid "Fit to screen"
 msgstr "Ajustar a la pantalla"
 
 #. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Headcount"
+msgstr "Total de personas"
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Headcount:"
+msgstr "Personas:"
+
+#. module: hr_org_chart_overview
 #: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee__id
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee_public__id
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__id
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_res_company__id
 msgid "ID"
 msgstr "ID"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__date_issue
+msgid "Issue Date"
+msgstr "Fecha de emisión"
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Issue date"
+msgstr "Fecha de emisión"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Legal name"
+msgstr "Razón social"
+
+#. module: hr_org_chart_overview
+#. odoo-python
+#: code:addons/hr_org_chart_overview/wizards/hr_org_chart_official.py:0
+msgid "No department"
+msgstr "Sin departamento"
 
 #. module: hr_org_chart_overview
 #. odoo-javascript
@@ -93,16 +187,49 @@ msgid "No employee or job position matches \"%s\"."
 msgstr "Ningún empleado o puesto de trabajo coincide con \"%s\"."
 
 #. module: hr_org_chart_overview
+#. odoo-python
+#: code:addons/hr_org_chart_overview/wizards/hr_org_chart_official.py:0
+msgid "No job position"
+msgstr "Sin puesto"
+
+#. module: hr_org_chart_overview
 #. odoo-javascript
 #: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
 msgid "No reporting line to draw yet"
 msgstr "Aún no hay líneas de reporte que dibujar"
 
 #. module: hr_org_chart_overview
+#. odoo-python
+#: code:addons/hr_org_chart_overview/wizards/hr_org_chart_official.py:0
+#: model:ir.actions.act_window,name:hr_org_chart_overview.action_official_org_chart
+#: model:ir.actions.report,name:hr_org_chart_overview.action_report_official_org_chart
+#: model:ir.model,name:hr_org_chart_overview.model_hr_org_chart_official
+#: model:ir.ui.menu,name:hr_org_chart_overview.menu_official_org_chart
+msgid "Official Organizational Chart"
+msgstr "Organigrama oficial"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid "Official PDF"
+msgstr "PDF oficial"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_res_company__org_chart_signer_name
+msgid "Org Chart Signer"
+msgstr "Firmante del organigrama"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_res_company__org_chart_signer_title
+msgid "Org Chart Signer Position"
+msgstr "Cargo del firmante del organigrama"
+
+#. module: hr_org_chart_overview
 #. odoo-javascript
 #: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
 #: model:ir.actions.client,name:hr_org_chart_overview.action_org_chart_overview
 #: model:ir.ui.menu,name:hr_org_chart_overview.menu_org_chart_overview_report
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.view_employee_form
 msgid "Organizational Chart"
 msgstr "Organigrama"
 
@@ -117,6 +244,38 @@ msgstr "Desplazar"
 #: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
 msgid "Pan: drag the background to move around"
 msgstr "Desplazar: arrastra el fondo para moverte"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,help:hr_org_chart_overview.field_res_company__org_chart_signer_name
+msgid "Person who signs the official organizational chart."
+msgstr "Persona que firma el organigrama oficial."
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,help:hr_org_chart_overview.field_res_company__org_chart_signer_title
+msgid "Position of the signer, as printed under the signature."
+msgstr "Cargo del firmante, tal como se imprime bajo la firma."
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.hr_org_chart_official_view_form
+msgid "Print PDF"
+msgstr "Imprimir PDF"
+
+#. module: hr_org_chart_overview
+#. odoo-javascript
+#: code:addons/hr_org_chart_overview/static/src/xml/hr_org_chart_overview.xml:0
+msgid ""
+"Printable chart by department, with the company tax id and a signature block"
+msgstr "Organigrama imprimible por departamento, con la identificación fiscal de la empresa y bloque de firma"
+
+#. module: hr_org_chart_overview
+#: model:ir.model,name:hr_org_chart_overview.model_hr_employee_public
+msgid "Public Employee"
+msgstr "Empleado público"
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Reporting lines"
+msgstr "Líneas de reporte"
 
 #. module: hr_org_chart_overview
 #. odoo-javascript
@@ -145,10 +304,63 @@ msgid ""
 msgstr "Asigna un gerente a tus empleados y el organigrama de tu organización aparecerá aquí."
 
 #. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__show_reporting_lines
+msgid "Show Reporting Lines"
+msgstr "Mostrar líneas de reporte"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_employee__org_chart_visible
+msgid "Show in Org Chart"
+msgstr "Mostrar en organigrama"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__signer_name
+msgid "Signer"
+msgstr "Firmante"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__signer_title
+msgid "Signer Position"
+msgstr "Cargo del firmante"
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Structure by department"
+msgstr "Estructura por departamento"
+
+#. module: hr_org_chart_overview
+#. odoo-python
+#: code:addons/hr_org_chart_overview/wizards/hr_org_chart_official.py:0
+msgid "The chart cannot expire before it is issued."
+msgstr "El organigrama no puede vencer antes de emitirse."
+
+#. module: hr_org_chart_overview
 #. odoo-javascript
 #: code:addons/hr_org_chart_overview/static/src/js/hr_org_chart_overview.esm.js:0
 msgid "The chart could not be exported."
 msgstr "No se pudo exportar el organigrama."
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__title
+msgid "Title"
+msgstr "Título"
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,help:hr_org_chart_overview.field_hr_employee__org_chart_visible
+msgid ""
+"Uncheck to leave this record out of the organizational chart and of the "
+"official chart, e.g. for a technical or service account."
+msgstr "Desmarca para dejar este registro fuera del organigrama y del organigrama oficial, p. ej., una cuenta técnica o de servicio."
+
+#. module: hr_org_chart_overview
+#: model:ir.model.fields,field_description:hr_org_chart_overview.field_hr_org_chart_official__date_valid
+msgid "Valid Until"
+msgstr "Vigente hasta"
+
+#. module: hr_org_chart_overview
+#: model_terms:ir.ui.view,arch_db:hr_org_chart_overview.report_official_org_chart_document
+msgid "Valid until"
+msgstr "Vigente hasta"
 
 #. module: hr_org_chart_overview
 #. odoo-javascript

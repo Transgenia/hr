@@ -5,11 +5,26 @@
         <field name="tag">hr_org_chart_overview</field>
         <field name="target">main</field>
     </record>
+    <!-- Every internal user: the chart only shows public employee data. Next
+         to the Directory, as the Reporting menu is for HR officers only. -->
     <menuitem
-        parent="hr.hr_menu_hr_reports"
+        parent="hr.menu_hr_root"
         id="menu_org_chart_overview_report"
         action="action_org_chart_overview"
-        groups="hr.group_hr_user"
-        sequence="1"
+        groups="base.group_user"
+        sequence="5"
     />
+
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.org.chart.overview</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']/group" position="inside">
+                <group string="Organizational Chart" name="org_chart">
+                    <field name="org_chart_visible" />
+                </group>
+            </xpath>
+        </field>
+    </record>
 </odoo>

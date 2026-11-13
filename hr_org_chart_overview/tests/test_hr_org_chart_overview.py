@@ -259,10 +259,11 @@ class TestHrOrgChartOverview(BaseCommon):
         )
 
     def test_manager_hidden_by_record_rule(self):
+        # The chart reads the public records: their rules are the ones that apply
         self.env["ir.rule"].create(
             {
                 "name": "Org chart test: Abe is hidden",
-                "model_id": self.env.ref("hr.model_hr_employee").id,
+                "model_id": self.env.ref("hr.model_hr_employee_public").id,
                 "domain_force": f"[('id', '!=', {self.abe.id})]",
             }
         )
@@ -380,22 +381,150 @@ class TestHrOrgChartOverview(BaseCommon):
         self.assertEqual(count_queries(), expected)
 
     def test_access_rights(self):
-        """The chart is built with the rights of the user, without sudo."""
-        self.assertEqual(self._get_data(user=self.hr_officer), self._get_data())
+        """Any internal user gets the chart, built from public records only."""
+        expected = self._get_data()
+        self.assertEqual(self._get_data(user=self.hr_officer), expected)
+        self.assertEqual(self._get_data(user=self.internal_user), expected)
+        public = self.env["hr.employee.public"].with_company(self.chart_company)
+        self.assertEqual(
+            public.with_user(self.internal_user).get_organization_data(), expected
+        )
+        # Which does not open the private records to that user
+        employee = self.Employee.search([], limit=1)
         with self.assertRaises(AccessError):
-            self._get_data(user=self.internal_user)
+            employee.with_user(self.internal_user).read(["private_email"])
+        with self.assertRaises(AccessError):
+            employee.with_user(self.internal_user).read(["org_chart_visible"])
 
     def test_menu(self):
         action = self.env.ref("hr_org_chart_overview.action_org_chart_overview")
         self.assertEqual(action.tag, "hr_org_chart_overview")
         menu = self.env.ref("hr_org_chart_overview.menu_org_chart_overview_report")
-        self.assertEqual(menu.parent_id, self.env.ref("hr.hr_menu_hr_reports"))
+        self.assertEqual(menu.parent_id, self.env.ref("hr.menu_hr_root"))
         self.assertEqual(menu.action, action)
-        self.assertEqual(menu.group_ids, self.env.ref("hr.group_hr_user"))
-        # HR officers reach the entry: it is visible, and so are its ancestors
+        self.assertEqual(menu.group_ids, self.env.ref("base.group_user"))
+        # Every internal user reaches the entry: it is visible, and so are its
+        # ancestors. The official chart is for HR officers only.
         path_ids = {int(menu_id) for menu_id in menu.parent_path.split("/") if menu_id}
         menu_model = self.env["ir.ui.menu"]
         officer_menus = menu_model.with_user(self.hr_officer)._visible_menu_ids()
         self.assertLessEqual(path_ids, officer_menus)
         internal_menus = menu_model.with_user(self.internal_user)._visible_menu_ids()
-        self.assertNotIn(menu.id, internal_menus)
+        self.assertLessEqual(path_ids, internal_menus)
+        official = self.env.ref("hr_org_chart_overview.menu_official_org_chart")
+        self.assertIn(official.id, officer_menus)
+        self.assertNotIn(official.id, internal_menus)
+
+    def test_hidden_employee(self):
+        """Unchecked employees leave the chart; their reports head the branch."""
+        boss = self._create_employee("Hidden Boss")
+        report = self._create_employee("Visible Report", boss)
+        self._create_employee("Visible Leaf", report)
+        lone = self._create_employee("Hidden Lone")
+        (boss | lone).org_chart_visible = False
+        data = self._get_data(user=self.internal_user)
+        names = [node["name"] for node in self._walk(data)]
+        self.assertNotIn("Hidden Boss", names)
+        self.assertIn("Visible Report", [node["name"] for node in data["children"]])
+        self.assertIn("Visible Leaf", names)
+        self.assertNotIn(lone.id, data["unassigned_ids"])
+
+    def _new_official(self, **vals):
+        return (
+            self.env["hr.org.chart.official"]
+            .with_user(self.hr_officer)
+            .with_company(self.chart_company)
+            .create({"company_id": self.chart_company.id, **vals})
+        )
+
+    def test_official_chart_data(self):
+        department = self.env["hr.department"].create(
+            {"name": "Org Chart Dept", "company_id": self.chart_company.id}
+        )
+        boss = self._create_employee(
+            "Official Boss", department_id=department.id, job_title="Director"
+        )
+        self._create_employee(
+            "Official Contractor",
+            boss,
+            department_id=department.id,
+            job_title="Advisor",
+            employee_type="contractor",
+        )
+        hidden = self._create_employee(
+            "Official Hidden", boss, department_id=department.id
+        )
+        hidden.org_chart_visible = False
+        chart = self._new_official()._get_official_chart_data()
+        department_data = next(
+            data for data in chart["departments"] if data["name"] == "Org Chart Dept"
+        )
+        self.assertEqual(department_data["count"], 2)
+        self.assertEqual(
+            {
+                job["name"]: [person["name"] for person in job["employees"]]
+                for job in department_data["jobs"]
+            },
+            {"Advisor": ["Official Contractor"], "Director": ["Official Boss"]},
+        )
+        names = [line["name"] for line in chart["lines"]]
+        self.assertNotIn("Official Hidden", names)
+        self.assertEqual(chart["total"], len(names))
+        boss_line = chart["lines"][names.index("Official Boss")]
+        self.assertEqual(
+            chart["lines"][names.index("Official Boss") + 1],
+            {
+                "name": "Official Contractor",
+                "job": "Advisor",
+                "external": True,
+                "depth": boss_line["depth"] + 1,
+            },
+        )
+        self.assertGreaterEqual(chart["external_count"], 1)
+
+    def test_official_chart_content(self):
+        """The PDF shows the company and the chart, never private data."""
+        self.chart_company.partner_id.vat = "XAXX010101000"
+        self._create_employee(
+            "Printed Person",
+            job_title="Analyst",
+            private_email="printed.private@example.com",
+            private_phone="+52 55 4321 9876",
+        )
+        wizard = self._new_official(
+            signer_name="Printed Signer", signer_title="General Director"
+        )
+        html = (
+            self.env["ir.actions.report"]
+            .with_user(self.hr_officer)
+            ._render_qweb_html(
+                "hr_org_chart_overview.action_report_official_org_chart", wizard.ids
+            )[0]
+            .decode()
+        )
+        for text in (
+            wizard.title,
+            "Printed Person",
+            "Analyst",
+            "XAXX010101000",
+            "Printed Signer",
+            "General Director",
+        ):
+            self.assertIn(text, html)
+        for private in ("printed.private@example.com", "4321 9876"):
+            self.assertNotIn(private, html)
+
+    def test_official_chart_print(self):
+        wizard = self._new_official(
+            signer_name="Remembered Signer", signer_title="Legal Representative"
+        )
+        action = wizard.action_print()
+        self.assertEqual(
+            action["report_name"], "hr_org_chart_overview.report_official_org_chart"
+        )
+        self.assertEqual(self.chart_company.org_chart_signer_name, "Remembered Signer")
+        self.assertEqual(self._new_official().signer_title, "Legal Representative")
+        with self.assertRaises(ValidationError):
+            self._new_official(date_issue="2026-01-02", date_valid="2026-01-01")
+        with self.assertRaises(AccessError):
+            self.env["hr.org.chart.official"].with_user(self.internal_user).create({})
