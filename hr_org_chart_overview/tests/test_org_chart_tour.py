@@ -21,6 +21,9 @@ class TestOrgChartTour(HttpCase):
         )
         # Neither manager nor subordinates: counted, but not in the chart
         cls.loner = employee_model.create({"name": "OrgChart Loner"})
+        # Same for somebody who is only their own manager
+        cls.solo = employee_model.create({"name": "OrgChart Solo"})
+        cls.solo.parent_id = cls.solo
 
     def test_org_chart_tour(self):
         self.start_tour(

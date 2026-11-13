@@ -114,7 +114,7 @@
                     </div>
                 </t>
                 <div
-                    t-if="unassignedCount"
+                    t-if="unassigned.count"
                     class="o_org_chart_banner alert alert-info d-flex flex-wrap align-items-center gap-2 mb-0 px-3 py-2 border-0 rounded-0"
                     role="status"
                 >

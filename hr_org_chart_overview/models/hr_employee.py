@@ -45,12 +45,15 @@ class HrEmployee(models.Model):
         """Return the organizational chart of the current company.
 
         The root node stands for the company. Its children are the employees
-        who have no manager and at least one subordinate; those who have
-        neither are only counted in ``unassigned_count``. A node carries the
-        ``children`` key only when somebody reports to it.
+        at the top of the hierarchy who have at least one subordinate; those
+        with none are listed by name in ``unassigned_ids`` and counted in
+        ``unassigned_count``. A node carries the ``children`` key only when
+        somebody reports to it.
 
-        Employees set as their own manager are taken as having no manager, as
-        Odoo does in its own chart and demo data for the top of the hierarchy.
+        An employee is at the top of the hierarchy when they have no manager,
+        when they are their own manager (as Odoo marks it in its own chart and
+        demo data) or when their manager is not part of the chart: archived,
+        in another company or not readable by the current user.
 
         Employees are read once, with the access rights of the current user,
         and the tree is assembled in memory.
@@ -60,25 +63,35 @@ class HrEmployee(models.Model):
             ["name", "parent_id", "job_title", "job_id"],
             order="name, id",
         )
+        employee_ids = set(employees.ids)
         subordinates = defaultdict(list)
         for employee in employees:
-            manager = employee.parent_id
-            manager_id = manager.id if manager != employee else False
+            manager_id = employee.parent_id.id
+            if manager_id == employee.id or manager_id not in employee_ids:
+                # Nobody in the chart above them: top of the hierarchy
+                manager_id = False
             subordinates[manager_id].append(employee)
-        without_manager = subordinates.pop(False, [])
-        top_employees = [emp for emp in without_manager if emp.id in subordinates]
+        top_employees = []
+        unassigned_ids = []
+        for employee in subordinates.pop(False, []):
+            if employee.id in subordinates:
+                top_employees.append(employee)
+            else:
+                unassigned_ids.append(employee.id)
         data = {
             "id": False,
             "name": self.env.company.name,
             "title": "",
             "className": "o_org_company",
-            "unassigned_count": len(without_manager) - len(top_employees),
+            "unassigned_count": len(unassigned_ids),
+            "unassigned_ids": unassigned_ids,
             "children": [],
         }
         # An employee has a single manager, hence sits in a single list of
-        # ``subordinates`` and is visited at most once: the walk always ends,
-        # even when the data holds a manager loop (which no walk starting from
-        # an employee without manager can reach).
+        # ``subordinates`` and is visited at most once: the walk always ends.
+        # Members of a manager loop stored in the data, and whoever is below
+        # them, hang from no top employee: they are left out of the chart, and
+        # out of the unassigned employees as they do have a manager.
         queue = deque((data["children"], emp, 0) for emp in top_employees)
         while queue:
             siblings, employee, level = queue.popleft()

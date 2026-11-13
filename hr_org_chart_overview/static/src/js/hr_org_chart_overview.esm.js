@@ -32,10 +32,17 @@ const SLIDE_CLASSES = [
     "slide-left",
     "slide-right",
 ];
-const UNASSIGNED_DOMAIN = [
+// Fallback for a server that does not tell who is left out of the chart
+const LEGACY_UNASSIGNED_DOMAIN = [
     ["parent_id", "=", false],
     ["child_ids", "=", false],
 ];
+// Browsers refuse to draw on a canvas beyond some size (about 16384 px per side
+// for the strictest ones) and then export an empty image.
+const CANVAS_MAX_SIDE = 16000;
+// Largest side of a PDF page, in points
+const PDF_MAX_SIDE = 14400;
+const PNG_DATA_URL_PREFIX = "data:image/png;base64,";
 
 /**
  * JQuery is not part of the backend assets anymore: it is fetched on demand,
@@ -89,6 +96,27 @@ function prepareCompanyNode(data) {
     };
 }
 
+/**
+ * The employees left out of the chart: how many they are and the domain that
+ * lists them. Both come from the same ids, so the list opened from the banner
+ * shows exactly the employees it counts.
+ *
+ * @param {Object} data result of `hr.employee.get_organization_data`
+ * @returns {{count: Number, domain: Array}}
+ */
+function prepareUnassigned(data) {
+    const ids = data.unassigned_ids;
+    if (Array.isArray(ids) && ids.every((id) => Number.isInteger(id) && id > 0)) {
+        return {count: ids.length, domain: [["id", "in", ids]]};
+    }
+    // Older payload: only a count, the list is the closest known domain
+    const count = data.unassigned_count;
+    return {
+        count: Number.isInteger(count) && count > 0 ? count : 0,
+        domain: LEGACY_UNASSIGNED_DOMAIN,
+    };
+}
+
 export class HrOrgChartOverview extends Component {
     static template = "hr_org_chart_overview.HrOrgChartOverview";
     static components = {Layout};
@@ -117,9 +145,7 @@ export class HrOrgChartOverview extends Component {
                 loadChartLibraries(),
             ]);
             this.root = prepareCompanyNode(data);
-            this.unassignedCount = Number.isInteger(data.unassigned_count)
-                ? data.unassigned_count
-                : 0;
+            this.unassigned = prepareUnassigned(data);
         });
         onMounted(() => this.renderChart());
         onWillUnmount(() => this.destroyChart());
@@ -134,14 +160,14 @@ export class HrOrgChartOverview extends Component {
     }
 
     get unassignedMessage() {
-        if (this.unassignedCount === 1) {
+        if (this.unassigned.count === 1) {
             return _t(
                 "1 employee has no manager and no subordinates, so they are not shown."
             );
         }
         return _t(
             "%s employees have no manager and no subordinates, so they are not shown.",
-            this.unassignedCount
+            this.unassigned.count
         );
     }
 
@@ -283,7 +309,7 @@ export class HrOrgChartOverview extends Component {
                 [false, "kanban"],
                 [false, "form"],
             ],
-            domain: UNASSIGNED_DOMAIN,
+            domain: this.unassigned.domain,
         });
     }
 
@@ -517,9 +543,16 @@ export class HrOrgChartOverview extends Component {
             this.setZoom(1, false);
             container.scrollLeft = 0;
             container.scrollTop = 0;
+            // As sharp as the screen, unless the image would be too large
+            const scale = Math.min(
+                window.devicePixelRatio || 1,
+                CANVAS_MAX_SIDE / this.chartEl.offsetWidth,
+                CANVAS_MAX_SIDE / this.chartEl.offsetHeight
+            );
             const canvas = await window.html2canvas(this.chartEl, {
                 backgroundColor: getComputedStyle(container).backgroundColor,
                 logging: false,
+                scale,
                 // The capture is made on a copy of the page, which gets the
                 // styles meant for the exported image (see the stylesheet)
                 onclone: (clonedDocument) => {
@@ -528,10 +561,21 @@ export class HrOrgChartOverview extends Component {
                         .classList.add("o_org_chart_exporting");
                 },
             });
+            const image =
+                canvas.width && canvas.height ? canvas.toDataURL("image/png") : "";
+            if (
+                !image.startsWith(PNG_DATA_URL_PREFIX) ||
+                image.length === PNG_DATA_URL_PREFIX.length
+            ) {
+                // What a browser gives for a canvas it could not draw on
+                throw new Error(
+                    `Empty image out of a ${canvas.width}x${canvas.height} canvas`
+                );
+            }
             if (format === "pdf") {
-                this.savePdf(canvas);
+                this.savePdf(image, canvas.width / scale, canvas.height / scale);
             } else {
-                this.savePng(canvas);
+                this.savePng(image);
             }
         } catch (error) {
             console.error(error);
@@ -550,23 +594,37 @@ export class HrOrgChartOverview extends Component {
         return _t("Organizational Chart");
     }
 
-    savePng(canvas) {
+    /**
+     * @param {String} image PNG data URL
+     */
+    savePng(image) {
         const link = document.createElement("a");
         link.download = `${this.exportFilename}.png`;
-        link.href = canvas.toDataURL("image/png");
+        link.href = image;
         link.click();
     }
 
-    savePdf(canvas) {
-        // A single page of the size of the image, which fills it
-        const {width, height} = canvas;
+    /**
+     * A single page filled by the image. The page has the size of the chart
+     * on screen (one point per CSS pixel, whatever the pixel density of the
+     * image), scaled down if needed to what a PDF page may measure.
+     *
+     * @param {String} image PNG data URL
+     * @param {Number} width of the chart, in CSS pixels
+     * @param {Number} height of the chart, in CSS pixels
+     */
+    savePdf(image, width, height) {
+        const ratio = Math.min(1, PDF_MAX_SIDE / width, PDF_MAX_SIDE / height);
+        // Rounded down, so a rounding error cannot push a side over the limit
+        const pageWidth = Math.floor(width * ratio * 100) / 100;
+        const pageHeight = Math.floor(height * ratio * 100) / 100;
         const doc = new window.jsPDF({
-            orientation: width > height ? "landscape" : "portrait",
+            orientation: pageWidth > pageHeight ? "landscape" : "portrait",
             unit: "pt",
-            format: [width, height],
+            format: [pageWidth, pageHeight],
             compress: true,
         });
-        doc.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, width, height);
+        doc.addImage(image, "PNG", 0, 0, pageWidth, pageHeight);
         doc.save(`${this.exportFilename}.pdf`);
     }
 }

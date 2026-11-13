@@ -4,6 +4,9 @@ import {registry} from "@web/core/registry";
 
 const chart = ".o_hr_org_chart_overview .orgchart";
 const search = ".o_hr_org_chart_overview .o_searchview_input";
+const listRows = ".o_list_view .o_data_row";
+// Number of employees the banner says are left out of the chart
+let announced = 0;
 
 registry.category("web_tour.tours").add("hr_org_chart_overview_tour", {
     steps: () => [
@@ -26,6 +29,9 @@ registry.category("web_tour.tours").add("hr_org_chart_overview_tour", {
         {
             content: "Employees outside the chart are announced",
             trigger: ".o_org_chart_banner:contains(no manager and no subordinates)",
+            run() {
+                announced = Number.parseInt(this.anchor.textContent, 10);
+            },
         },
         {
             content: "Open the employees outside the chart",
@@ -33,8 +39,21 @@ registry.category("web_tour.tours").add("hr_org_chart_overview_tour", {
             run: "click",
         },
         {
-            content: "They are listed",
-            trigger: ".o_list_view .o_data_row:contains(OrgChart Loner)",
+            content: "The employee with neither manager nor subordinates is listed",
+            trigger: `${listRows}:contains(OrgChart Loner)`,
+        },
+        {
+            content: "So is the one who is only their own manager, and nobody else",
+            trigger: `${listRows}:contains(OrgChart Solo)`,
+            run() {
+                const rows = Array.from(document.querySelectorAll(listRows));
+                if (rows.some((row) => row.textContent.includes("OrgChart Manager"))) {
+                    throw new Error("An employee of the chart is listed as left out");
+                }
+                if (rows.length !== announced) {
+                    throw new Error(`${announced} announced, ${rows.length} listed`);
+                }
+            },
         },
         {
             content: "Back to the chart, which is drawn again",
